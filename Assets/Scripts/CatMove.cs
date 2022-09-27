@@ -136,6 +136,9 @@ public class CatMove : MonoBehaviour
                 case "InMusicRoom":
                     DoorPortalPlayerReposition(portal.type);
                     break;
+                case "InLibrary":
+                    DoorPortalPlayerReposition(portal.type);
+                    break;
 
                 // 일반 교실 OUT
                 case "OutClass":
@@ -159,6 +162,9 @@ public class CatMove : MonoBehaviour
                     DoorPortalPlayerReposition(portal.type);
                     break;
                 case "OutMusic":
+                    DoorPortalPlayerReposition(portal.type);
+                    break;
+                case "OutLibrary":
                     DoorPortalPlayerReposition(portal.type);
                     break;
 
