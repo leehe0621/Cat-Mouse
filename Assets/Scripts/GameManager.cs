@@ -62,6 +62,11 @@ public class GameManager : MonoBehaviour
                 Stages[8].SetActive(true);
                 PlayerReposition(pos);
                 break;
+            case "InHealth":
+                Stages[0].SetActive(false);
+                Stages[10].SetActive(true);
+                PlayerReposition(pos);
+                break;
 
             // 일반 교실 OUT
             case "OutClass":
@@ -103,6 +108,11 @@ public class GameManager : MonoBehaviour
                 break;
             case "OutLibrary":
                 Stages[8].SetActive(false);
+                Stages[0].SetActive(true);
+                PlayerReposition(pos);
+                break;
+            case "OutHealth":
+                Stages[10].SetActive(false);
                 Stages[0].SetActive(true);
                 PlayerReposition(pos);
                 break;
