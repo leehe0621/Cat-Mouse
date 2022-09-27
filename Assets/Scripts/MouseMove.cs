@@ -14,7 +14,7 @@ public class PlayerMove : MonoBehaviour
     Rigidbody2D rigid;
     SpriteRenderer spriteRenderer;
     Animator anim;
-    int jumpCount = 2;
+    int jumpCount = 3;
 
     void Awake()
     {
