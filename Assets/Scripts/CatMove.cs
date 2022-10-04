@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
+using UnityEngine.UI;
 
 public class CatMove : MonoBehaviour
 {
@@ -8,18 +11,24 @@ public class CatMove : MonoBehaviour
     public Portal portal;
     public float maxSpeed;
     public float jumpPower;
-    Rigidbody2D rigid;
-    SpriteRenderer spriteRenderer;
-    Animator anim;
+    public Rigidbody2D rigid;
+    public SpriteRenderer spriteRenderer;
+    public Animator anim;
     int jumpCount = 2;
+
+    public PhotonView PV;
+    public Text NickNameText;
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+
         jumpCount = 0;
-        
+
+        NickNameText.text = PV.IsMine ? PhotonNetwork.NickName : PV.Owner.NickName;
+        NickNameText.color = PV.IsMine ? Color.green : Color.red;
     }
 
     private void Update()
@@ -44,11 +53,6 @@ public class CatMove : MonoBehaviour
         if(Input.GetButtonDown("Horizontal"))
         {
             spriteRenderer.flipX = Input.GetAxisRaw("Horizontal") == -1;
-        }
-
-        if(Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            Debug.Log("DOWN ARROW");
         }
 
         //Animation
@@ -89,25 +93,13 @@ public class CatMove : MonoBehaviour
             }
         }
 
-        /*Vector3 viewPos = Camera.main.WorldToViewportPoint(transform.position);
-
-        viewPos.x = Mathf.Clamp01(viewPos.x);
-
-        Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewPos);
-        transform.position = worldPos;*/
-        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-
-        //Debug.Log("충돌");
-
         // 스테이지 이동(포탈 종류에 따라)
         portal = collision.gameObject.GetComponent<Portal>();
-
-        //rigid.velocity.y < 1
-        //Input.GetKeyDown(KeyCode.Z)
+        
         if (collision.gameObject.layer == 10 && rigid.velocity.y < 0)
         {
             switch (portal.type)
