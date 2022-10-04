@@ -5,7 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 
-public class CatMove : MonoBehaviour
+public class CatMove : MonoBehaviourPunCallbacks, IPunObservable
 {
     public GameManager gameManager;
     public Portal portal;
@@ -33,66 +33,74 @@ public class CatMove : MonoBehaviour
 
     private void Update()
     {
-        //Jump -> 2단점프
-        if(jumpCount > 0)
+        if (PV.IsMine)
         {
-            if (Input.GetButtonDown("Jump")) //&& !anim.GetBool("isJumping") = 무한 점프 막기
+            //Jump -> 2단점프
+            if (jumpCount > 0)
             {
-                rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
-                anim.SetBool("isJumping", true);
-                jumpCount--;
+                if (Input.GetButtonDown("Jump")) //&& !anim.GetBool("isJumping") = 무한 점프 막기
+                {
+                    rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+                    anim.SetBool("isJumping", true);
+                    jumpCount--;
+                }
             }
-        }
-        
-        if (Input.GetButtonUp("Horizontal")) //버튼에서 손을 때는 경우, 속력을 줄임
-        {
-            rigid.velocity = new Vector2(rigid.velocity.normalized.x * 0.5f, rigid.velocity.y);
-        }
 
-        //방향 전환
-        if(Input.GetButtonDown("Horizontal"))
-        {
-            spriteRenderer.flipX = Input.GetAxisRaw("Horizontal") == -1;
-        }
+            if (Input.GetButtonUp("Horizontal")) //버튼에서 손을 때는 경우, 속력을 줄임
+            {
+                rigid.velocity = new Vector2(rigid.velocity.normalized.x * 0.5f, rigid.velocity.y);
+            }
 
-        //Animation
-        if(Mathf.Abs(rigid.velocity.x) < 0.3) // 절대값 = abs
-        {
-            anim.SetBool("isMoving", false);
-        } else
-            anim.SetBool("isMoving", true);
+            //방향 전환
+            if (Input.GetButtonDown("Horizontal"))
+            {
+                spriteRenderer.flipX = Input.GetAxisRaw("Horizontal") == -1;
+            }
+
+            //Animation
+            if (Mathf.Abs(rigid.velocity.x) < 0.3) // 절대값 = abs
+            {
+                anim.SetBool("isMoving", false);
+            }
+            else
+                anim.SetBool("isMoving", true);
+        }
+       
     }
 
     void FixedUpdate()
     {
-        //Move By Key Control
-        float h = Input.GetAxisRaw("Horizontal");
-        rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
-
-        //maxSpeed보다 빠른 경우
-        //속도 관련한 벡터 -> velocity
-        if (rigid.velocity.x > maxSpeed) // Right Max Speed
-            rigid.velocity = new Vector2(maxSpeed, rigid.velocity.y); 
-        else if (rigid.velocity.x < maxSpeed * (-1)) // Left Max Speed
-            rigid.velocity = new Vector2(maxSpeed * (-1), rigid.velocity.y);
-
-        // Landing Platform
-        if (rigid.velocity.y < 1)
+        if (PV.IsMine)
         {
-            Debug.DrawRay(rigid.position, Vector3.down * 3, Color.red);
-            RaycastHit2D rayhit = Physics2D.Raycast(rigid.position, Vector3.down * 3, 3, LayerMask.GetMask("Platform"));
+            //Move By Key Control
+            float h = Input.GetAxisRaw("Horizontal");
+            rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
 
-            if (rayhit.collider != null)
+            //maxSpeed보다 빠른 경우
+            //속도 관련한 벡터 -> velocity
+            if (rigid.velocity.x > maxSpeed) // Right Max Speed
+                rigid.velocity = new Vector2(maxSpeed, rigid.velocity.y);
+            else if (rigid.velocity.x < maxSpeed * (-1)) // Left Max Speed
+                rigid.velocity = new Vector2(maxSpeed * (-1), rigid.velocity.y);
+
+            // Landing Platform
+            if (rigid.velocity.y < 1)
             {
-                if (rayhit.distance < 1.5f) // player 크기의 반 -> 크기 3으로 수정해서 1.5
+                Debug.DrawRay(rigid.position, Vector3.down * 3, Color.red);
+                RaycastHit2D rayhit = Physics2D.Raycast(rigid.position, Vector3.down * 3, 3, LayerMask.GetMask("Platform"));
+
+                if (rayhit.collider != null)
                 {
-                    //Debug.Log(rayhit.collider.name);
-                    anim.SetBool("isJumping", false);
-                    jumpCount = 2;
+                    if (rayhit.distance < 1.5f) // player 크기의 반 -> 크기 3으로 수정해서 1.5
+                    {
+                        //Debug.Log(rayhit.collider.name);
+                        anim.SetBool("isJumping", false);
+                        jumpCount = 2;
+                    }
                 }
             }
         }
-
+        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -227,4 +235,8 @@ public class CatMove : MonoBehaviour
         gameManager.NextStage(classPos, type);
     }
 
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+       
+    }
 }
